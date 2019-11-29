@@ -19,7 +19,7 @@
 import logging
 from typing import Callable, List, Optional, Set, Tuple, TYPE_CHECKING, Union
 
-from flask import current_app, g
+from flask import current_app, redirect, g, flash, request, session
 from flask_appbuilder import Model
 from flask_appbuilder.security.sqla import models as ab_models
 from flask_appbuilder.security.sqla.manager import SecurityManager
@@ -28,9 +28,27 @@ from flask_appbuilder.security.views import (
     PermissionViewModelView,
     RoleModelView,
     UserModelView,
+    expose,
+    UserDBModelView,
+    AuthDBView
 )
 from flask_appbuilder.widgets import ListWidget
 from sqlalchemy import or_
+from sqlalchemy.orm.query import Query
+from flask_appbuilder.security.sqla.models import User
+import sqlalchemy as db
+from flask_appbuilder.security.manager import BaseSecurityManager
+from flask_login import login_user, logout_user
+import datetime
+import jwt
+import requests
+import json
+from flask_oidc import OpenIDConnect
+from flask_appbuilder.security.manager import AUTH_OID
+from urllib.parse import quote
+from flask_appbuilder.security.views import AuthOIDView
+import jwt
+from base64 import b64encode,b64decode
 from sqlalchemy.engine.base import Connection
 from sqlalchemy.orm.mapper import Mapper
 
@@ -45,6 +63,7 @@ if TYPE_CHECKING:
     from superset.models.core import Database
     from superset.viz import BaseViz
 
+user_x = None
 
 class SupersetSecurityListWidget(ListWidget):
     """
@@ -813,3 +832,158 @@ class SupersetSecurityManager(SecurityManager):
         """
 
         self.assert_datasource_permission(viz.datasource)
+
+#Custom Security for user login by passing parameters
+class CustomAuthDBView(AuthDBView):
+
+    @expose('/test',methods=['GET','POST'])
+    def test(self):
+        return "OK"
+    
+    login_template = 'appbuilder/general/security/login_db.html'
+
+    @expose('/login/', methods=['GET', 'POST'])
+
+    def login(self):
+        redirect_url = self.appbuilder.get_url_for_index
+        """ try:
+            r = requests.get('http://localhost:3200/url')
+            y = json.loads(r.json())
+            token_encoded = jwt.decode(y['token'],verify=False, algorithms='RS256')
+            print("*************SUCCESS***********",token_encoded,"************************")
+
+        except :
+                print("************************",'Error Occured') 
+                return super(CustomAuthDBView, self).login()
+
+        print("***-----",current_app.appbuilder.sm.get_all_roles(), current_app.appbuilder.sm.find_role('Custom'))
+ """
+        roles_s = []
+        roles = None
+        assign_roles = []  
+
+        if request.args.get('redirect') is not None:
+
+            redirect_url = request.args.get('redirect')
+        
+        if request.args.get('username') is not None and request.args.get('roles') is not None:
+            roles = request.args.get('roles')
+
+            for x in roles.split("*"):
+                if x is not '':
+                    roles_s.append(x)
+
+            print("*********************ROLES***",roles_s,"**")
+
+            for x in roles_s:
+                role = current_app.appbuilder.sm.find_role(x)
+                if role is not None:
+                    assign_roles.append(role)
+
+            print("****assign_roles",assign_roles)
+
+            user = self.appbuilder.sm.find_user(username=request.args.get('username'))
+            user1 = User()
+            user1.__tablename__ = "ab_user"
+            user1.id = 134
+            user1.first_name = 'test'+request.args.get('username')
+            user1.last_name = 'user2'+request.args.get('username')
+            user1.username = request.args.get('username')
+            user1.password = 'password'
+            user1.active = True
+            user1.email = 'testuser1@qw.com'
+            user1.last_login = datetime.datetime.now()
+            user1.login_count = None
+            user1.fail_login_count = None
+            user1.roles =  assign_roles #[current_app.appbuilder.sm.find_role('Admin')]
+            user1.created_on = datetime.datetime.now()
+            user1.changed_on = datetime.datetime.now()
+
+            global user_x
+            user_x = user1
+            print("********************USERROLES",user1.roles)
+            login_user(user1, remember=False)
+            return redirect(redirect_url)
+
+        else:
+
+            flash('Unable to auto login', 'warning')
+
+            return super(CustomAuthDBView, self).login()
+
+
+class CustomSecurityManager(SupersetSecurityManager):
+
+    authdbview = CustomAuthDBView
+
+    def __init__(self, appbuilder):
+
+        super(CustomSecurityManager, self).__init__(appbuilder)
+
+# Custom security using OpenID/Keycloak
+class OIDCSecurityManager(SupersetSecurityManager):
+    def __init__(self,appbuilder):
+        super(OIDCSecurityManager, self).__init__(appbuilder)
+        if self.auth_type == AUTH_OID:
+            self.oid = OpenIDConnect(self.appbuilder.get_app)
+        self.authoidview = AuthOIDCView
+        
+
+class AuthOIDCView(AuthOIDView):
+
+    @expose('/login/', methods=['GET', 'POST'])
+    def login(self, flag=True):
+
+        redirect_uri = self.appbuilder.get_url_for_index
+        val =None
+        preselect = None
+        encodedval = None
+
+        if request.args.get('extra') is not None:
+            print("*****REEDIRECT***from args*",request.args.get('extra'))
+            extra  = request.args.get('extra')
+            url = 'http://localhost:3200/'
+            r = requests.post(url+'decryptText', json={'key':extra})
+            x = r.text
+            y = json.loads(x)
+            orgname = y['fil']['org_RO']
+            username= y['fil']['user']
+            dashboard_uri = y['da_url']
+            preselect = enc = '%7B"89"%3A%20%7B"org_name"%3A%20%5B"' + orgname + '"%5D%7D%2C%20"90"%3A%20%7B"user_name"%3A%20%5B"' + username + '"%5D%7D%7D'
+            s = requests.post(url+'encryptText',json={'key':enc})
+            encodedval = s.text
+            val = dashboard_uri + '?preselect_filters=' + encodedval
+            redirect_uri = val
+
+        sm = self.appbuilder.sm
+        oidc = sm.oid
+
+        @self.appbuilder.sm.oid.require_login
+        def handle_login(): 
+            user = sm.auth_user_oid(oidc.user_getfield('email'))
+
+            if user is None:
+                info = oidc.user_getinfo(['preferred_username', 'given_name', 'family_name', 'email'])
+                user = sm.add_user(info.get('preferred_username'), info.get('given_name'), info.get('family_name'), info.get('email'), sm.find_role('Gamma')) 
+
+            login_user(user, remember=False)
+            
+            return redirect(redirect_uri) 
+
+        return handle_login()  
+
+    @expose('/logout/', methods=['GET', 'POST'])
+    def logout(self):
+
+        oidc = self.appbuilder.sm.oid
+
+        oidc.logout()
+        super(AuthOIDCView, self).logout()
+
+        #redirect_url = request.url_root.strip('/') + self.appbuilder.get_url_for_login     #for superset logout but new redirect will go to portal   
+        redirect_url = 'http://localhost:3000/resources'
+
+        print("******************************",redirect_url)
+
+        return redirect(oidc.client_secrets.get('issuer') + '/protocol/openid-connect/logout?redirect_uri=' + quote(redirect_url))
+    

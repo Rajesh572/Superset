@@ -124,6 +124,7 @@ class ControlPanelsContainer extends React.Component {
   }
 
   renderControlPanelSection(section) {
+    console.log(section.label === "Datasource & Chart Type");
     const { controls } = this.props;
 
     const hasErrors = section.controlSetRows.some(rows => rows.some(s => (

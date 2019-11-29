@@ -33,12 +33,14 @@ from typing import Any, Callable, Dict, List, Optional
 
 from celery.schedules import crontab
 from dateutil import tz
-from flask_appbuilder.security.manager import AUTH_DB
+from flask_appbuilder.security.manager import AUTH_DB, AUTH_OID
+from pathlib import Path
 
 from superset.stats_logger import DummyStatsLogger
 from superset.utils.log import DBEventLogger
 from superset.utils.logging_configurator import DefaultLoggingConfigurator
 
+from superset.security import CustomSecurityManager,OIDCSecurityManager
 # Realtime stats logger, a StatsD implementation exists
 STATS_LOGGER = DummyStatsLogger()
 EVENT_LOGGER = DBEventLogger()
@@ -94,7 +96,7 @@ SUPERSET_WEBSERVER_TIMEOUT = 60
 
 SUPERSET_DASHBOARD_POSITION_DATA_LIMIT = 65535
 EMAIL_NOTIFICATIONS = False
-CUSTOM_SECURITY_MANAGER = None
+CUSTOM_SECURITY_MANAGER = OIDCSecurityManager
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 # ---------------------------------------------------------
 
@@ -172,8 +174,14 @@ DRUID_ANALYSIS_TYPES = ["cardinality"]
 # AUTH_DB : Is for database (username/password()
 # AUTH_LDAP : Is for LDAP
 # AUTH_REMOTE_USER : Is for using REMOTE_USER from web server
-AUTH_TYPE = AUTH_DB
-
+AUTH_TYPE = AUTH_OID
+OIDC_CLIENT_SECRETS = "/home/rajesh/Documents/Superset-Dev/incubator-superset/superset/client_secret.json"
+OIDC_ID_TOKEN_COOKIE_SECURE = False
+OIDC_REQUIRE_VERIFIED_EMAIL = False
+AUTH_USER_REGISTRATION = True
+AUTH_USER_REGISTRATION_ROLE = 'Gamma'
+OIDC_INTROSPECTION_AUTH_METHOD= 'bearer'
+OIDC_TOKEN_TYPE_HINT= 'access_token'
 # Uncomment to setup Full admin role name
 # AUTH_ROLE_ADMIN = 'Admin'
 
@@ -384,6 +392,7 @@ QUERY_LOGGER = None
 
 # Set this API key to enable Mapbox visualizations
 MAPBOX_API_KEY = os.environ.get("MAPBOX_API_KEY", "")
+MAPBOX_API_KEY="pk.eyJ1IjoicmFqZXNoNTcyIiwiYSI6ImNrMmcwMnRiNzBwcmczYnQ4aGxueGxoNmMifQ.OS0SIcgxFSWJrq9dJ6zj-A"
 
 # Maximum number of rows returned from a database
 # in async mode, no more than SQL_MAX_ROW will be returned and stored
@@ -572,7 +581,7 @@ HIVE_POLL_INTERVAL = 5
 # this enables programmers to customize certain charts (like the
 # geospatial ones) by inputing javascript in controls. This exposes
 # an XSS security vulnerability
-ENABLE_JAVASCRIPT_CONTROLS = False
+ENABLE_JAVASCRIPT_CONTROLS = True
 
 # The id of a template dashboard that should be copied to every new user
 DASHBOARD_TEMPLATE_ID = None

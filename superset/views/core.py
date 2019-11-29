@@ -37,6 +37,7 @@ from flask import (
     request,
     Response,
     url_for,
+    session
 )
 from flask_appbuilder import expose
 from flask_appbuilder.actions import action
@@ -49,6 +50,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.session import Session
 from werkzeug.routing import BaseConverter
 from werkzeug.urls import Href
+from flask_login import logout_user
+from superset.security import AuthOIDCView
 
 import superset.models.core as models
 from superset import (
@@ -647,6 +650,13 @@ def healthcheck():
 @app.route("/ping")
 def ping():
     return "OK"
+
+@talisman(force_https=False)
+@app.route("/test12",methods=['GET'])
+def test12():
+    print("*********************test12called",type(session),"**",session)
+    logout_user()
+    return "OK TEST"
 
 
 class KV(BaseSupersetView):
