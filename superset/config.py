@@ -122,7 +122,7 @@ SQLALCHEMY_CUSTOM_PASSWORD_STORE = None
 QUERY_SEARCH_LIMIT = 1000
 
 # Flask-WTF flag for CSRF
-WTF_CSRF_ENABLED = True
+WTF_CSRF_ENABLED = False
 
 # Add endpoints that need to be exempt from CSRF protection
 WTF_CSRF_EXEMPT_LIST = ["superset.views.core.log"]
@@ -180,8 +180,6 @@ OIDC_ID_TOKEN_COOKIE_SECURE = False
 OIDC_REQUIRE_VERIFIED_EMAIL = False
 AUTH_USER_REGISTRATION = True
 AUTH_USER_REGISTRATION_ROLE = 'Gamma'
-OIDC_INTROSPECTION_AUTH_METHOD= 'bearer'
-OIDC_TOKEN_TYPE_HINT= 'access_token'
 # Uncomment to setup Full admin role name
 # AUTH_ROLE_ADMIN = 'Admin'
 
@@ -389,7 +387,7 @@ BACKUP_COUNT = 30
 # ):
 #     pass
 QUERY_LOGGER = None
-
+ENABLE_CORS = True
 # Set this API key to enable Mapbox visualizations
 MAPBOX_API_KEY = os.environ.get("MAPBOX_API_KEY", "")
 MAPBOX_API_KEY="pk.eyJ1IjoicmFqZXNoNTcyIiwiYSI6ImNrMmcwMnRiNzBwcmczYnQ4aGxueGxoNmMifQ.OS0SIcgxFSWJrq9dJ6zj-A"

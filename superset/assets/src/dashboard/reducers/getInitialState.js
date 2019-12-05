@@ -60,9 +60,12 @@ export default function(bootstrapData) {
     }
     catch (e){
     }
-    let decoded = JSON.parse(decodeURIComponent(atob(getParam('preselect_filters'))))
-    preselectFilters = decoded  
-  } catch (e) {
+  let xhtp = new XMLHttpRequest();
+  xhtp.open('GET','http://localhost:9000/session',false)
+  xhtp.send()
+  preselectFilters =  JSON.parse(JSON.parse(xhtp.response)['key'])  
+  console.log('preselect filters',preselectFilters)
+  } catch (e) {console.log('error occured')
     //
   }
 

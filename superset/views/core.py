@@ -652,12 +652,9 @@ def ping():
     return "OK"
 
 @talisman(force_https=False)
-@app.route("/test12",methods=['GET'])
-def test12():
-    print("*********************test12called",type(session),"**",session)
-    logout_user()
-    return "OK TEST"
-
+@app.route("/getSessionVar",methods=['GET'])
+def getSessionVar():
+    return session.get('testVar', 'not set')
 
 class KV(BaseSupersetView):
 
