@@ -282,7 +282,7 @@ CACHE_CONFIG: Dict[str, Any] = {"CACHE_TYPE": "null"}
 TABLE_NAMES_CACHE_CONFIG = {"CACHE_TYPE": "null"}
 
 # CORS Options
-ENABLE_CORS = False
+ENABLE_CORS = True
 CORS_OPTIONS: Dict[Any, Any] = {}
 
 # Chrome allows up to 6 open connections per domain at a time. When there are more
@@ -387,7 +387,6 @@ BACKUP_COUNT = 30
 # ):
 #     pass
 QUERY_LOGGER = None
-ENABLE_CORS = True
 # Set this API key to enable Mapbox visualizations
 MAPBOX_API_KEY = os.environ.get("MAPBOX_API_KEY", "")
 MAPBOX_API_KEY="pk.eyJ1IjoicmFqZXNoNTcyIiwiYSI6ImNrMmcwMnRiNzBwcmczYnQ4aGxueGxoNmMifQ.OS0SIcgxFSWJrq9dJ6zj-A"

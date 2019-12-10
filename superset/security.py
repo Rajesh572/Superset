@@ -19,7 +19,7 @@
 import logging
 from typing import Callable, List, Optional, Set, Tuple, TYPE_CHECKING, Union
 
-from flask import current_app, redirect, g, flash, request, session
+from flask import current_app, redirect, g, flash, request, session, jsonify
 from flask_appbuilder import Model
 from flask_appbuilder.security.sqla import models as ab_models
 from flask_appbuilder.security.sqla.manager import SecurityManager
@@ -57,6 +57,8 @@ from superset.connectors.connector_registry import ConnectorRegistry
 from superset.exceptions import SupersetSecurityException
 from superset.utils.core import DatasourceName
 import urllib.parse
+from simplecrypt import encrypt, decrypt
+from base64 import b64encode, b64decode
 
 if TYPE_CHECKING:
     from superset.common.query_context import QueryContext
@@ -933,6 +935,7 @@ class OIDCSecurityManager(SupersetSecurityManager):
 class AuthOIDCView(AuthOIDView):
 
     textvar = None
+    key = 'mysekret'
 
     @expose('/test13',methods=['POST','GET'])
     def test(self):
@@ -950,19 +953,18 @@ class AuthOIDCView(AuthOIDView):
 
         if request.args.get('extra') is not None:
             extra  = self.textvar['key']
-            url = 'http://localhost:3200/'
-            r = requests.post(url+'decryptText', json={'key':extra})
-            x = r.text
-            y = json.loads(x)
+            self.appbuilder.hideheader = True
+            url = 'http://localhost:8088/'
+            r = requests.post(url+'decrypt', json={'key':extra})
+            x = r.json()
+            y = json.loads( x['key'])
             orgname = y['fil']['org_RO']
             username = y['fil']['user']
             dashboard_uri = y['da_url']
             preselect = enc = '%7B"89"%3A%20%7B"org_name"%3A%20%5B"' + orgname + '"%5D%7D%2C%20"90"%3A%20%7B"user_name"%3A%20%5B"' + username + '"%5D%7D%7D'
             unquoted = urllib.parse.unquote(enc)
             session['testVar'] = unquoted
-            s = requests.post(url+'encryptText',json={'key':enc})
-            encodedval = s.text
-            val = dashboard_uri + '?preselect_filters=' + encodedval
+            val = dashboard_uri + '?preselect_filters=' + 'val'
             redirect_uri = val
 
         sm = self.appbuilder.sm
@@ -977,7 +979,6 @@ class AuthOIDCView(AuthOIDView):
                 user = sm.add_user(info.get('preferred_username'), info.get('given_name'), info.get('family_name'), info.get('email'), sm.find_role('Gamma')) 
 
             login_user(user, remember=False)
-            #self.appbuilder.hideheader = True
             return redirect(redirect_uri) 
 
         return handle_login()  
@@ -998,5 +999,26 @@ class AuthOIDCView(AuthOIDView):
     
     @expose('/session',methods=['GET'])
     def getSession(self):
-        print('session from /session ************ ',session.get('testVar', 'not set'))
         return {'key':session.get('testVar', 'not set')}
+
+    @expose('/encrypt', methods=['POST'])
+    def encryptText(self):
+        try:
+            data = request.data
+            jsonData = json.loads(str(request.data, 'utf-8'))
+            cipher_text = encrypt(self.key, jsonData['key'])
+            cipher = str(b64encode(cipher_text), 'utf-8')
+            return {'key': cipher}
+        except:
+            return {'key': 'error'}
+
+
+    @expose('/decrypt', methods=['POST'])
+    def decryptText(self):
+        try:
+            data = request.data
+            jsonData = json.loads(str(request.data, 'utf-8'))
+            decipher = decrypt(self.key,b64decode(jsonData['key']))
+            return {'key':str(decipher,'utf-8')}
+        except:
+            return {'key':'error'}

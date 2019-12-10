@@ -172,6 +172,8 @@ for middleware in app.config["ADDITIONAL_MIDDLEWARE"]:
 class MyIndexView(IndexView):
     @expose("/")
     def index(self):
+        self.appbuilder.hideheader = False
+        print("**************************",self.appbuilder.hideheader)
         return redirect("/superset/welcome")
 
 

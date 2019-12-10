@@ -217,6 +217,14 @@ class FilterBox extends React.Component {
     return datasourceFilters;
   }
   renderSelect(filterConfig) {
+    // disable the chart id
+    const chart89El = document.getElementById('chart-id-89');
+    try{
+      let offsetP = chart89El.offsetParent
+      //offsetP.parentElement.style.display = 'none'
+    }
+    catch {
+    }
     const { filtersChoices } = this.props;
     const { selectedValues } = this.state;
 
