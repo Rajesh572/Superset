@@ -40,7 +40,7 @@ from superset.stats_logger import DummyStatsLogger
 from superset.utils.log import DBEventLogger
 from superset.utils.logging_configurator import DefaultLoggingConfigurator
 
-from superset.security import CustomSecurityManager,OIDCSecurityManager
+from superset.security import CustomSecurityManager
 # Realtime stats logger, a StatsD implementation exists
 STATS_LOGGER = DummyStatsLogger()
 EVENT_LOGGER = DBEventLogger()
