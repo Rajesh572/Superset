@@ -992,8 +992,8 @@ class AuthOIDCView(AuthOIDView):
         super(AuthOIDCView, self).logout()
         session.pop('testVar','None')
 
-        #redirect_url = request.url_root.strip('/') + self.appbuilder.get_url_for_login     #for superset logout but new redirect will go to portal   
-        redirect_url = 'http://localhost:3000/resources'
+        redirect_url = request.url_root.strip('/') + self.appbuilder.get_url_for_login     #for superset logout but new redirect will go to portal   
+        #redirect_url = 'http://localhost:3000/resources'
 
         return redirect(oidc.client_secrets.get('issuer') + '/protocol/openid-connect/logout?redirect_uri=' + quote(redirect_url))
     

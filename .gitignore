@@ -61,7 +61,8 @@ superset/assets/cypress/screenshots
 superset/assets/cypress/videos
 superset/assets/version_info.json
 yarn-error.log
-superset/client_secret*.json
+superset/client_secret.json
+superset/client_secret2.json
 
 # IntelliJ
 *.iml

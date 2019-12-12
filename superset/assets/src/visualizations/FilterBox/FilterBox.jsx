@@ -279,18 +279,13 @@ class FilterBox extends React.Component {
           const style = {
             backgroundImage,
             padding: '2px 5px',
-          };
+          };/* 
           if(opt.id === 'NULP' && filterConfig.key === 'org_name')
           return { value: opt.id, label: opt.id, style};
-
           else if(filterConfig.key === 'user_name')
            return { value: opt.id, label: opt.id, style };
-
-           else return { value: opt.id, label: opt.id, style, disabled:'true' };
-/* 
-          console.log({ value: opt.id, label: opt.id, style });
-          return { value: opt.id, label: opt.id, style }; */
-          
+           else return { value: opt.id, label: opt.id, style, disabled:'true' }; */ 
+          return { value: opt.id, label: opt.id, style };  
         })}
         onChange={(...args) => { this.changeFilter(key, ...args); }}
         onFocus={this.onFocus}
