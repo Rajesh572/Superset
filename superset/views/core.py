@@ -51,7 +51,6 @@ from sqlalchemy.orm.session import Session
 from werkzeug.routing import BaseConverter
 from werkzeug.urls import Href
 from flask_login import logout_user
-from superset.security import AuthOIDCView
 
 import superset.models.core as models
 from superset import (
