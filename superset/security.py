@@ -869,43 +869,9 @@ class CustomAuthDBView(AuthDBView):
 
             redirect_url = request.args.get('redirect')
         
-        if request.args.get('username') is not None and request.args.get('roles') is not None:
-            roles = request.args.get('roles')
-
-            for x in roles.split("*"):
-                if x is not '':
-                    roles_s.append(x)
-
-            print("*********************ROLES***",roles_s,"**")
-
-            for x in roles_s:
-                role = current_app.appbuilder.sm.find_role(x)
-                if role is not None:
-                    assign_roles.append(role)
-
-            print("****assign_roles",assign_roles)
-
+        if request.args.get('username') is not None :
             user = self.appbuilder.sm.find_user(username=request.args.get('username'))
-            user1 = User()
-            user1.__tablename__ = "ab_user"
-            user1.id = 134
-            user1.first_name = 'test'+request.args.get('username')
-            user1.last_name = 'user2'+request.args.get('username')
-            user1.username = request.args.get('username')
-            user1.password = 'password'
-            user1.active = True
-            user1.email = 'testuser1@qw.com'
-            user1.last_login = datetime.datetime.now()
-            user1.login_count = None
-            user1.fail_login_count = None
-            user1.roles =  assign_roles #[current_app.appbuilder.sm.find_role('Admin')]
-            user1.created_on = datetime.datetime.now()
-            user1.changed_on = datetime.datetime.now()
-
-            global user_x
-            user_x = user1
-            print("********************USERROLES",user1.roles)
-            login_user(user1, remember=False)
+            login_user(user, remember=False)
             return redirect(redirect_url)
 
         else:

@@ -96,7 +96,7 @@ SUPERSET_WEBSERVER_TIMEOUT = 60
 
 SUPERSET_DASHBOARD_POSITION_DATA_LIMIT = 65535
 EMAIL_NOTIFICATIONS = False
-CUSTOM_SECURITY_MANAGER = OIDCSecurityManager
+CUSTOM_SECURITY_MANAGER = CustomSecurityManager
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 # ---------------------------------------------------------
 
@@ -104,7 +104,7 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 SECRET_KEY = "\2\1thisismyscretkey\1\2\e\y\y\h"
 
 # The SQLAlchemy connection string.
-SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(DATA_DIR, "superset.db")
+SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(DATA_DIR, "superset2.db")
 # SQLALCHEMY_DATABASE_URI = 'mysql://myapp@localhost/myapp'
 # SQLALCHEMY_DATABASE_URI = 'postgresql://root:password@localhost/myapp'
 
@@ -174,8 +174,8 @@ DRUID_ANALYSIS_TYPES = ["cardinality"]
 # AUTH_DB : Is for database (username/password()
 # AUTH_LDAP : Is for LDAP
 # AUTH_REMOTE_USER : Is for using REMOTE_USER from web server
-AUTH_TYPE = AUTH_OID
-OIDC_CLIENT_SECRETS = "/home/rajesh/Documents/Superset-Dev/incubator-superset/superset/client_secret.json"
+AUTH_TYPE = AUTH_DB
+#OIDC_CLIENT_SECRETS = "/home/rajesh/Documents/Superset-Dev/incubator-superset/superset/client_secret.json"
 OIDC_ID_TOKEN_COOKIE_SECURE = False
 OIDC_REQUIRE_VERIFIED_EMAIL = False
 AUTH_USER_REGISTRATION = True
