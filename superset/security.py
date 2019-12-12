@@ -43,7 +43,6 @@ import datetime
 import jwt
 import requests
 import json
-from flask_oidc import OpenIDConnect
 from flask_appbuilder.security.manager import AUTH_OID
 from urllib.parse import quote
 from flask_appbuilder.security.views import AuthOIDView
@@ -57,8 +56,6 @@ from superset.connectors.connector_registry import ConnectorRegistry
 from superset.exceptions import SupersetSecurityException
 from superset.utils.core import DatasourceName
 import urllib.parse
-from simplecrypt import encrypt, decrypt
-from base64 import b64encode, b64decode
 
 if TYPE_CHECKING:
     from superset.common.query_context import QueryContext
@@ -890,7 +887,7 @@ class CustomSecurityManager(SupersetSecurityManager):
         super(CustomSecurityManager, self).__init__(appbuilder)
 
 # Custom security using OpenID/Keycloak
-class OIDCSecurityManager(SupersetSecurityManager):
+""" class OIDCSecurityManager(SupersetSecurityManager):
     def __init__(self,appbuilder):
         super(OIDCSecurityManager, self).__init__(appbuilder)
         if self.auth_type == AUTH_OID:
@@ -987,4 +984,4 @@ class AuthOIDCView(AuthOIDView):
             decipher = decrypt(self.key,b64decode(jsonData['key']))
             return {'key':str(decipher,'utf-8')}
         except:
-            return {'key':'error'}
+            return {'key':'error'} """
